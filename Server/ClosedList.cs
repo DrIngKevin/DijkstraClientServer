@@ -1,54 +1,61 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Server
 {
     internal class ClosedList
     {
-        Dictionary<Node, NodeEntry> entries;
+        private Dictionary<Node, NodeEntry> entries;
 
         public ClosedList()
         {
             entries = new Dictionary<Node, NodeEntry>();
         }
 
-        public void AddEntry(NodeEntry entry)
+        public bool AddEntry(NodeEntry entry)
         {
-            if(!entries.ContainsKey(entry.Node))
+            if (entries.ContainsKey(entry.Node))
+            {
+                return false;
+            }
+
             entries.Add(entry.Node, entry);
+            return true;
         }
 
         public bool IsInClosed(Node node)
         {
-            return entries.TryGetValue(node, out _ /*NodeEntry entry*/);
+            return entries.ContainsKey(node);
         }
 
         public List<Node> GetResult(Node endNode)
         {
-            List<Node> result = new List<Node>();
-            Node current = endNode;
-
-            while (current != null)
+            if (!entries.TryGetValue(endNode, out NodeEntry entry))
             {
-                result.Add(current);
-                //eingefügt wegen NullRefernceError
-                if(GetEntry(current) == null || GetEntry(current).PreNode == null) { break; }
-
-                current = GetEntry(current).PreNode;
+                return new List<Node>(); // Return an empty list if the endNode is not found in entries
             }
+
+            List<Node> result = new List<Node>();
+            while (entry != null)
+            {
+                result.Add(entry.Node);
+                if ((entry.PreNode==null) ||(!entries.TryGetValue(entry.PreNode, out entry)))
+                {
+                    break; // Break the loop if the PreNode is not found in entries
+                }
+            }
+
             return result;
         }
 
-        public NodeEntry GetEntry(Node node)
+
+
+        public void Print()
         {
-            foreach (NodeEntry entry in entries.Values)
+            foreach (var entry in entries.Values)
             {
-                if (entry.Node.Equals(node)) { return entry; }
+                Console.WriteLine(entry.ToString());
             }
-            return null;
         }
     }
 }

@@ -36,9 +36,25 @@ namespace Server
             return neighs.Keys.ToList();
         }
 
-        public Dictionary<Node, int> getNeighs()
+        public Dictionary<Node, int> GetNeighs()
         {
             return neighs;
         }
+
+        public override string ToString()
+        {
+            return desc;
+        }
+
+        public void print()
+        {
+            Console.WriteLine("**" + Desc);
+            if (neighs.Count == 0)
+                Console.WriteLine("no neighbours");
+            else
+                foreach (Node n in neighs.Keys)
+                    Console.WriteLine("  " + n.Desc + " (" + neighs[n] + ")");
+        }
+
     }
 }

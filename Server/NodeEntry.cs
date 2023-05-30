@@ -19,5 +19,12 @@ namespace Server
             PreNode = preNode;
         }
 
+        public override string ToString()
+        {
+            string nodeString = Node != null ? Node.ToString() : "null";
+            string preNodeString = PreNode != null ? PreNode.ToString() : "null";
+            return string.Format("{0}-{1}-{2}", nodeString, Distance, preNodeString);
+        }
+
     }
 }

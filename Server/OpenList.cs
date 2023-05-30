@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Server
 {
@@ -20,9 +18,7 @@ namespace Server
         public bool Add(NodeEntry entry)
         {
             if (dictionary.ContainsKey(entry.Node))
-            {
                 return false;
-            }
 
             sortedList.Add(entry);
             Sort();
@@ -31,42 +27,54 @@ namespace Server
             return true;
         }
 
-        public bool IsInOpen(Node node)
+        public bool IsEmpty()
         {
-            return dictionary.ContainsKey(node);
+            return sortedList.Count == 0;
         }
 
-        public void Sort()
-        {
-            sortedList.Sort((a, b) => a.Distance.CompareTo(b.Distance));
-        }
-
-        //Sortiert zuerst die Liste.
-        //Entfernt das erste Element aus der sortierten Liste und liefert dieses zurück.
         public NodeEntry GetBest()
         {
-            if (sortedList.Count == 0)
-            {
+            if (IsEmpty())
                 return null;
-            }
 
             Sort();
             NodeEntry best = sortedList[0];
-            sortedList.RemoveAt(0);
-            dictionary.Remove(best.Node);
+            Remove(best);
             return best;
         }
 
         public NodeEntry Get(Node node)
         {
             if (dictionary.ContainsKey(node))
-            {
                 return dictionary[node];
-            }
             else
-            {
                 return null;
+        }
+
+        public void Remove(NodeEntry entry)
+        {
+            sortedList.Remove(entry);
+            dictionary.Remove(entry.Node);
+        }
+
+        public void Print()
+        {
+            Console.WriteLine("Open List:");
+            foreach (var entry in sortedList)
+            {
+                Console.WriteLine(entry.ToString());
             }
+            Console.WriteLine();
+        }
+
+        private void Sort()
+        {
+            sortedList.Sort((a, b) => a.Distance.CompareTo(b.Distance));
+        }
+
+        public bool IsInOpen(Node node)
+        {
+            return dictionary.ContainsKey(node);
         }
     }
 }
