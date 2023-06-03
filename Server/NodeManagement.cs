@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -118,7 +119,9 @@ namespace Server
             closedList.Print(); Console.WriteLine("CL at the end!");
             openList.Print(); Console.WriteLine("OL at the end!");
             //Retourniere das Ergebnis
-            return closedList.GetResult(end);
+            List<Node> path = closedList.GetResult(end);
+            path.Reverse();
+            return path;
 
         }
 
@@ -133,6 +136,61 @@ namespace Server
         {
             foreach (Node n in _nodes.Values)
                 n.print();
+        }
+
+        public void LoadFromFile(string filePath)
+        {
+            try
+            {
+                string[] lines = File.ReadAllLines(filePath);
+
+                foreach (string line in lines)
+                {
+                    //Console.WriteLine(line);
+                    if (line.Contains("-"))
+                    {
+                        string[] parts = line.Split('-');
+                        string fromNode = parts[0];
+                        string toNode = parts[1];
+                        int weight = int.Parse(parts[2]);
+
+                        AddConnection(fromNode, toNode, weight);
+                    }
+                    else
+                    {
+                        AddNode(line);
+                    }
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                Console.WriteLine("Die angegebene Datei wurde nicht gefunden.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Ein Fehler ist aufgetreten: " + ex.Message);
+            }
+        }
+       
+        public Node GetNodeByDesc(string desc)
+        {
+            return _nodes[desc];
+        }
+
+        public void PrintPath(List<Node> path)
+        {
+            if (path != null)
+            {
+                Console.WriteLine("Shortest path from Start to End:");
+                foreach (Node node in path)
+                {
+                    Console.WriteLine(node.Desc);
+                }
+            }
+            else
+            {
+                Console.WriteLine("No path found from Start to End.");
+            }
         }
     }
 }

@@ -13,6 +13,14 @@ namespace Server
             Server server = new Server();
             server.Start();
 
+
+            //TestSearch();
+            //TestFileLoad();
+
+        }
+
+        public static void TestSearch()
+        {
             NodeManagement nm = new NodeManagement();
 
             Node nodeA = new Node("A");
@@ -76,8 +84,30 @@ namespace Server
             {
                 Console.WriteLine("No path found from E to A.");
             }
+        }
 
+        public static void TestFileLoad()
+        {
+            NodeManagement nm = new NodeManagement();
+            nm.LoadFromFile(@"C:\Users\kevin\Downloads\Dijkstra.txt");
+            nm.print();
+            PrintPath(nm.Search(nm.GetNodeByDesc("1"),nm.GetNodeByDesc("8")));
+        }
 
+        public static void PrintPath(List<Node> path)
+        {
+            if (path != null)
+            {
+                Console.WriteLine("Shortest path from Start to End:");
+                foreach (Node node in path)
+                {
+                    Console.WriteLine(node.Desc);
+                }
+            }
+            else
+            {
+                Console.WriteLine("No path found from Start to End.");
+            }
         }
     }
 }
