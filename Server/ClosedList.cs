@@ -1,6 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 
+/**
+ * @author: Kevin Bauer
+ * Project: ClientServerDijkstra
+ * 
+ **/
+
 namespace Server
 {
     internal class ClosedList

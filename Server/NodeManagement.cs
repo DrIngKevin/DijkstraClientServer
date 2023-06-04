@@ -5,6 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+/**
+ * @author: Kevin Bauer
+ * Project: ClientServerDijkstra
+ * 
+ **/
+
 namespace Server
 {
     internal class NodeManagement
@@ -41,9 +47,7 @@ namespace Server
 
         public List<Node> Search(Node start, Node end)
         {
-            Console.WriteLine("--1--");
-            start.print();
-            Console.WriteLine("-----");
+            if (start == null || end == null) { return new List<Node>(); }
 
             //Lege jeweils ein Objekt vom Typ Open List und ClosedList an
             OpenList openList = new OpenList();
@@ -51,20 +55,17 @@ namespace Server
 
             //Füge das erste Element in die OpenList ein
             openList.Add(new NodeEntry(start, 0, null));
-            openList.Print(); Console.WriteLine("First Entry was added in OL!");
+            //openList.Print(); 
 
             //Hole den besten Eintrag aus der OpenList
             NodeEntry bestEntry = openList.GetBest();
-            openList.Print(); Console.WriteLine("best Entry was gotten from OL!");
+            //openList.Print(); 
             
             //Fahre solange fort bis die OpenList leer ist
             while (bestEntry != null)
             {
                 //Verwenden den Knoten aus dem Eintrag
                 Node curNode = bestEntry.Node;
-                Console.WriteLine("--1--");
-                curNode.print();
-                Console.WriteLine("-----");
 
                 //Untersuche jeden Nachbarn dieses Knotens
                 foreach (Node neighbor in curNode.GetNeighborNodes())
@@ -72,7 +73,7 @@ namespace Server
                     //Ist der Nachbar bereits in der ClosedList: keine Aktion erforderlich
                     if (closedList.IsInClosed(neighbor))
                     {
-                        closedList.Print(); Console.WriteLine("Neighbor is in ClosedList!");
+                        //closedList.Print(); 
                         continue;
                     }
 
@@ -95,13 +96,13 @@ namespace Server
                     {
                         NodeEntry newEntry = new NodeEntry(neighbor, tentativeDistance, curNode);
                         openList.Add(newEntry);
-                        openList.Print(); Console.WriteLine("new Entry in OL was added!");
+                        //openList.Print(); 
                     }
                 }
 
                 //Füge den Knoten in die ClosedList hinzu
                 closedList.AddEntry(bestEntry);
-                closedList.Print(); Console.WriteLine("new Entry in CL was added!");
+                //closedList.Print(); 
 
                 //Hole den besten Eintrag aus der OpenList(siehe Methode GetBest der Klasse OpenList)
                 bestEntry = openList.GetBest();
@@ -111,13 +112,13 @@ namespace Server
                 if (bestEntry != null && bestEntry.Node.Equals(end))
                 {
                     closedList.AddEntry(bestEntry);
-                    closedList.Print(); Console.WriteLine("Target Entry was added in CL!");
+                    //closedList.Print(); Console.WriteLine("Target Entry was added in CL!");
                     break;
                 }
             }
 
-            closedList.Print(); Console.WriteLine("CL at the end!");
-            openList.Print(); Console.WriteLine("OL at the end!");
+            //closedList.Print(); Console.WriteLine("CL at the end!");
+            //openList.Print(); Console.WriteLine("OL at the end!");
             //Retourniere das Ergebnis
             List<Node> path = closedList.GetResult(end);
             path.Reverse();
@@ -138,7 +139,7 @@ namespace Server
                 n.print();
         }
 
-        public void LoadFromFile(string filePath)
+        public bool LoadFromFile(string filePath)
         {
             try
             {
@@ -165,16 +166,21 @@ namespace Server
             catch (FileNotFoundException)
             {
                 Console.WriteLine("Die angegebene Datei wurde nicht gefunden.");
+                return false;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Ein Fehler ist aufgetreten: " + ex.Message);
+                return false;
             }
+            return true;
         }
        
         public Node GetNodeByDesc(string desc)
         {
-            return _nodes[desc];
+            if(_nodes.ContainsKey(desc))
+                return _nodes[desc];
+            return null;
         }
 
         public void PrintPath(List<Node> path)

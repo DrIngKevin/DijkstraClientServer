@@ -7,6 +7,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 
+/**
+ * @author: Kevin Bauer
+ * Project: ClientServerDijkstra
+ * 
+ **/
+
 namespace Server
 {
     internal class Server

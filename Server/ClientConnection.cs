@@ -6,6 +6,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+/**
+ * @author: Kevin Bauer
+ * Project: ClientServerDijkstra
+ * 
+ **/
+
 namespace Server
 {
     internal class ClientConnection
@@ -23,21 +29,32 @@ namespace Server
 
         public void Run()
         {
-            //Console.WriteLine("Client connected");
-            Console.WriteLine($"Client {ClientName} connected");
+            Console.WriteLine("Client connected");
+            //Console.WriteLine($"Client {ClientName} connected");
 
             string msgReceived = null;
             byte[] bytesReceived = new Byte[1024];
             int numBytesReceived;
 
-            
 
+            int i = 0;
             do
             {
-                numBytesReceived = socket.Receive(bytesReceived);
-                msgReceived = Encoding.ASCII.GetString(bytesReceived, 0, numBytesReceived);
-                Console.WriteLine("Text received -> {0} ", msgReceived);
-                CheckCommand(msgReceived);
+                if (i == 0)
+                {
+                    numBytesReceived = socket.Receive(bytesReceived);
+                    msgReceived = Encoding.ASCII.GetString(bytesReceived, 0, numBytesReceived);
+                    Console.WriteLine("Text received -> {0} ", msgReceived);
+                    ClientName = msgReceived;
+                }
+                else
+                {
+                    numBytesReceived = socket.Receive(bytesReceived);
+                    msgReceived = Encoding.ASCII.GetString(bytesReceived, 0, numBytesReceived);
+                    Console.WriteLine("Text from {1} received -> {0} ", msgReceived, ClientName);
+                    CheckCommand(msgReceived);
+                }
+                i++;
                 
             } while (msgReceived != "bye");
 
@@ -51,7 +68,7 @@ namespace Server
             int numBytesSend;
             bytesSend = Encoding.ASCII.GetBytes(messageSend);
             numBytesSend = socket.Send(bytesSend);
-            Console.WriteLine("Message sent");
+            //Console.WriteLine("Message sent");
             Thread.Sleep(1);
         }
 
@@ -76,20 +93,33 @@ namespace Server
             switch (command.ToLower())
             {
                 case "addnode":
-                    nm.AddNode(args[0]);
-                    Send(args[0]);
+                    if(nm.AddNode(args[0]) == false) 
+                    {
+                        Send("Knoten mit dieser Bezeichnung existiert bereits");
+                    }
+                    else { Send("Knoten wurde hinzugefuegt"); };
                     break;
                 case "print":
                     SendNodeInfo();
                     break;
                 case "addconnection":
-                    nm.AddConnection(args[0], args[1], int.Parse(args[2]));
+                    if(nm.AddConnection(args[0], args[1], int.Parse(args[2])))
+                    {
+                        Send($"Die Connection zwischen {args[0]} und {args[1]} wurde hinzugefuegt");
+                    }
+                    else { Send($"Eine Connection zwischen {args[0]} und {args[1]} konnte nicht gebildet werden"); }
                     break;
                 case "load":
-                    nm.LoadFromFile(filepath);
+                    if (nm.LoadFromFile(filepath)) 
+                    { 
+                        Send($"Informationen wurden erfolgreich aus {filepath} ausgelesen"); 
+                    }
+                    else { Send($"Die angegebene Datei: {filepath} konnte nicht gefunden werden"); }
                     break;
                 case "search":
                     SendPathInfo(nm.Search(nm.GetNodeByDesc(args[0]), nm.GetNodeByDesc(args[1])));
+                    break;
+                case "bye":
                     break;
                 default:
                     Send("Invalid Command!");
@@ -100,34 +130,41 @@ namespace Server
 
         private void SendNodeInfo()
         {
-            foreach(var node in nm.GetNodes().Values)
+            StringBuilder sb = new StringBuilder();
+
+            foreach (var node in nm.GetNodes().Values)
             {
-                Send("**" + node.Desc);
+                sb.AppendLine("**" + node.Desc);
                 if (node.GetNeighborNodes().Count == 0)
-                    Send("no neighbours");
+                    sb.AppendLine("no neighbours");
                 else
                     foreach (Node n in node.GetNeighs().Keys)
-                        Send("  " + n.Desc + " (" + node.GetNeighs()[n] + ")");
+                        sb.AppendLine("  " + n.Desc + " (" + node.GetNeighs()[n] + ")");
             }
 
-            nm.print();
+            Send(sb.ToString());
         }
 
         private void SendPathInfo(List<Node> path)
         {
-            if (path != null)
+            StringBuilder sb = new StringBuilder();
+
+            if (path != null && path.Count > 1)
             {
-                Send(string.Format("Shortest path from {0} to {1}:", path[0].Desc, path[path.Count-1].Desc));
-                //Send("Shortest path from Start to End");
+                sb.AppendFormat("Shortest path from {0} to {1}:", path[0].Desc, path[path.Count - 1].Desc);
+                sb.AppendLine();
                 foreach (Node node in path)
                 {
-                    Send(node.Desc);
+                    sb.AppendLine(node.Desc);
                 }
             }
             else
             {
-                Send("No path found from Start to End.");
+                sb.AppendLine("No path found from Start to End.");
             }
+
+            Send(sb.ToString());
         }
+
     }
 }

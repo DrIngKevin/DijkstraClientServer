@@ -4,6 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+/**
+ * @author: Kevin Bauer
+ * Project: ClientServerDijkstra
+ * 
+ **/
+
 namespace Server
 {
     internal class Program

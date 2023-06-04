@@ -2,6 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 
+/**
+ * @author: Kevin Bauer
+ * Project: ClientServerDijkstra
+ * 
+ **/
+
 namespace Server
 {
     internal class OpenList
